@@ -108,7 +108,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			if(ctx.var_decl() != null)				//var_decl
 				decl += newTexts.get(ctx.var_decl());
 			else							//fun_decl
-				decl += newTexts.get(ctx.fun_decl()) + ".end mathod" + "\n";
+				decl += newTexts.get(ctx.fun_decl()) + ".end method" + "\n";
 		}
 		newTexts.put(ctx, decl);
 	}
@@ -455,7 +455,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			expr = "getstatic java/lang/System/out Ljava/io/PrintStream; " + "\n"
 					+ newTexts.get(ctx.args()) 
 					+ "invokevirtual " + symbolTable.getFunSpecStr("_print") + "\n";
-		} else {	
+		} else {
 			expr = newTexts.get(ctx.args()) 
 					+ "invokestatic " + getCurrentClassName()+ "/" + symbolTable.getFunSpecStr(fname) + "\n";
 		}	
