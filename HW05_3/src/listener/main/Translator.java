@@ -13,30 +13,30 @@ public class Translator {
 	private static OPTIONS getOption(String[] args){
 		if (args.length < 1)
 			return OPTIONS.BYTECODEGEN;
-		
-		if (args[0].startsWith("-p") 
+
+		if (args[0].startsWith("-p")
 				|| args[0].startsWith("-P"))
 			return OPTIONS.PRETTYPRINT;
-		
-		if (args[0].startsWith("-b") 
+
+		if (args[0].startsWith("-b")
 				|| args[0].startsWith("-B"))
 			return OPTIONS.BYTECODEGEN;
-		
-		if (args[0].startsWith("-u") 
+
+		if (args[0].startsWith("-u")
 				|| args[0].startsWith("-U"))
 			return OPTIONS.UCODEGEN;
-		
+
 		return OPTIONS.ERROR;
 	}
-	
+
 	public static void main(String[] args) throws Exception
 	{
-		CharStream codeCharStream = CharStreams.fromFileName("test.c");
+		CharStream codeCharStream = CharStreams.fromFileName("C:/Users/82103/Desktop/2019_Compiler_TeamProject/HW05_3/test.c");
 		MiniCLexer lexer = new MiniCLexer(codeCharStream);
 		CommonTokenStream tokens = new CommonTokenStream( lexer );
 		MiniCParser parser = new MiniCParser( tokens );
 		ParseTree tree = parser.program();
-		
+
 		ParseTreeWalker walker = new ParseTreeWalker();
 		switch (getOption(args)) {
 			case BYTECODEGEN:
