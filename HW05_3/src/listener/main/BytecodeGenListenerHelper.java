@@ -127,7 +127,7 @@ public class BytecodeGenListenerHelper {
 		return ctx.getChildCount() < 6;
 	}
 	
-	// 클래스의 처음 생성자형태를 채워서 반환
+	// 클래스의 처음 생성자형태를 채워서 반환 (전역변수도 있을 때를 고려)
 	static String getFunProlog() {
 		// return ".class public Test .....
 		// ...
@@ -138,8 +138,11 @@ public class BytecodeGenListenerHelper {
 				+ ".super java/lang/Object" + "\n"
 				+ ".method public <init>()V" + "\n"
 				+ "aload_0" + "\n"
-				+ "invokenonvirtual java/lang/Object/<init>()V" + "\n"
-				+ "return" + "\n"
+				+ "invokenonvirtual java/lang/Object/<init>()V" + "\n";
+	}
+	
+	static String getFunEnd() {
+		return "return" + "\n"
 				+ ".end method" + "\n";
 	}
 	

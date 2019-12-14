@@ -50,7 +50,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 
 	// var_decl	: type_spec IDENT ';' | type_spec IDENT '=' LITERAL ';'|type_spec IDENT '[' LITERAL ']' ';'
-	@Override //전역
+	@Override // 전역
 	public void enterVar_decl(MiniCParser.Var_declContext ctx) {
 		String varName = ctx.IDENT().getText();
 
@@ -83,6 +83,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	@Override
 	public void exitProgram(MiniCParser.ProgramContext ctx) {
 		String classProlog = getFunProlog();
+		String classEnd = getFunEnd();
 
 		String fun_decl = "", var_decl = "";
 
@@ -93,9 +94,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				var_decl += newTexts.get(ctx.decl(i));
 		}
 
-		newTexts.put(ctx, classProlog + var_decl + fun_decl);
+		newTexts.put(ctx, classProlog + var_decl + classEnd + fun_decl);
 
 		System.out.println(newTexts.get(ctx));
+
+
 	}	
 
 
@@ -105,7 +108,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String decl = "";
 		if(ctx.getChildCount() == 1)
 		{
-			if(ctx.var_decl() != null)				//var_decl
+			if(ctx.var_decl() != null)		//var_decl
 				decl += newTexts.get(ctx.var_decl());
 			else							//fun_decl
 				decl += newTexts.get(ctx.fun_decl()) + ".end method" + "\n";
@@ -149,22 +152,22 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	// while_stmt	: WHILE '(' expr ')' stmt
 	@Override
 	public void exitWhile_stmt(MiniCParser.While_stmtContext ctx) {
-		
+
 		String lend = symbolTable.newLabel();
 		String loop = symbolTable.newLabel();
-		
+
 		String expr = newTexts.get(ctx.expr());
 		String stmt = newTexts.get(ctx.stmt());
-		
+
 		// 집어넣을 문장을 만듦
 		String whileString = loop + ": " + "\n" // 루프 시작
-							+ expr + "\n" //루프의 조건문
-							+ "ifeq " + lend + "\n" // 만약 틀리다면 lend로 감
-							+ "ldc 1" + "\n" // 맞을 경우 ldc 1
-							+ stmt // 반복문 안의 문장 수행
-							+ "goto " + loop + "\n" // 다시 루프로 돌아감
-							+ lend +" : " + "\n";
-		
+				+ expr + "\n" //루프의 조건문
+				+ "ifeq " + lend + "\n" // 만약 틀리다면 lend로 감
+				+ "ldc 1" + "\n" // 맞을 경우 ldc 1
+				+ stmt // 반복문 안의 문장 수행
+				+ "goto " + loop + "\n" // 다시 루프로 돌아감
+				+ lend +" : " + "\n";
+
 		newTexts.put(ctx, whileString);
 	}
 
@@ -179,24 +182,39 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	private String funcHeader(MiniCParser.Fun_declContext ctx, String fname) {
 		return ".method public static " + symbolTable.getFunSpecStr(fname) + "\n"	
 				+ ".limit stack " + getStackSize(ctx) + "\n"
-				+ ".limit locals " + getLocalVarSize(ctx) + "\n";
+				+ ".limit locals " + getLocalVarSize(ctx) + "\n"
+				+ "aload_0" + "\n";
 
 	}
 
-	
-	@Override
+	@Override //전역 변수
 	public void exitVar_decl(MiniCParser.Var_declContext ctx) {
+		String thisString = "aload_0" + "\n";
 		String varName = ctx.IDENT().getText();
+		String varValue = ctx.LITERAL().getText();
 		String varDecl = "";
 
+		//초기화 값이 있을 때만 만들어준다
 		if (isDeclWithInit(ctx)) {
-			varDecl += "putfield " + varName + "\n";  
+			//varDecl += "putfield " + varName + "\n"; 
+
+			//이때 변수의 값이 6을 넘으면 bipush를 해야한다
+			if(Integer.parseInt(varValue) >= 6) {
+				varDecl += thisString + 
+						"bipush " + varValue + "\n" +
+						"putfield " + "Test/" + varName + " " + "I" + "\n";
+			}
+			else {
+				varDecl += thisString + 
+						"iconst_" + varValue + "\n" +
+						"putfield " + "Test/" + varName + " " + "I" + "\n";
+			}		
 			// v. initialization => Later! skip now..: 
 		}
 		newTexts.put(ctx, varDecl);
 	}
 
-	
+
 	@Override
 	public void exitLocal_decl(MiniCParser.Local_declContext ctx) {
 		String varDecl = "";
@@ -256,11 +274,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					+ lelse + ": " + elseStmt + "\n"
 					+ lend + ":"  + "\n";	
 		}
-		
+
 		newTexts.put(ctx, stmt);
 	}
 
-	
+
 	// return_stmt	: RETURN ';' | RETURN expr ';'
 	@Override
 	public void exitReturn_stmt(MiniCParser.Return_stmtContext ctx) {
@@ -287,9 +305,15 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		if(ctx.getChildCount() == 1) { // IDENT | LITERAL
 			if(ctx.IDENT() != null) {
 				String idName = ctx.IDENT().getText();
-				if(symbolTable.getVarType(idName) == Type.INT) {
+
+				if(!symbolTable.isLocal(idName)) { //IDENT가 전역 변수일 경우
+					expr += "getfield " + "Test/" + idName + " " + "I" + "\n";
+				}
+				else if(symbolTable.getVarType(idName) == Type.INT) {
 					expr += "iload_" + symbolTable.getVarId(idName) + " \n";
 				}
+
+
 				//else	// Type int array => Later! skip now..
 				//	expr += "           lda " + symbolTable.get(ctx.IDENT().getText()).value + " \n";
 			} else if (ctx.LITERAL() != null) {
@@ -304,8 +328,18 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				expr = newTexts.get(ctx.expr(0));
 
 			} else if(ctx.getChild(1).getText().equals("=")) { 	// IDENT '=' expr
-				expr = newTexts.get(ctx.expr(0))
-						+ "istore_" + symbolTable.getVarId(ctx.IDENT().getText()) + " \n";
+				//IDENT가 전역변수인지 아닌지 확인 필요
+				boolean isVar = !(symbolTable.isLocal(ctx.expr(0).getText()));
+
+				//만약 전역변수라면
+				if(isVar) {
+					expr = "putfield " + "Test/" + ctx.IDENT().getText() + " " +"I" + "\n"
+							+ "aload_0" + "\n";
+				}
+				else{
+					expr = newTexts.get(ctx.expr(0))
+							+ "istore_" + symbolTable.getVarId(ctx.IDENT().getText()) + " \n";
+				}
 
 			} else { 											// binary operation
 				expr = handleBinExpr(ctx, expr);
@@ -434,20 +468,20 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		case "and":
 			// x && y인 경우
 			expr +=  "ifne "+ lend + "\n" // 0 과 같지 않으면 1이므로 반은 맞은 경우
-					+ "pop" + "\n" + "ldc 0" + "\n" // 0과 같으면 아래 스택의 값은 확인 필요 없음, 뺴고 0 넣어줌
-					+ lend + ": "; 
+			+ "pop" + "\n" + "ldc 0" + "\n" // 0과 같으면 아래 스택의 값은 확인 필요 없음, 뺴고 0 넣어줌
+			+ lend + ": "; 
 			break;
 		case "or":
 			// x || y인 경우
 			expr += "ifeq " + lend + "\n" // 0 과 같으면 한 번 더 확인 필요, lend로 감
-					+ "pop" + "\n" + "ldc 1" + "\n" // 1이라면 더이상 확인할 필요 없으므로 pop하고 1 넣음
-					+ lend + ": ";
+			+ "pop" + "\n" + "ldc 1" + "\n" // 1이라면 더이상 확인할 필요 없으므로 pop하고 1 넣음
+			+ lend + ": ";
 			break;
 
 		}
 		return expr;
 	}
-	
+
 	private String handleFunCall(MiniCParser.ExprContext ctx, String expr) {
 		String fname = getFunName(ctx);		
 

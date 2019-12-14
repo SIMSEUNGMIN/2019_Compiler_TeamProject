@@ -51,7 +51,7 @@ public class SymbolTable {
 
 
 	private int _globalVarID = 0;
-	private int _localVarID = 0;
+	private int _localVarID = 1;
 	private int _labelID = 0;
 	private int _tempVarID = 0;
 
@@ -63,7 +63,7 @@ public class SymbolTable {
 	//처음에 symbolTable 생성시 초기화
 	void initFunDecl(){		// at each func decl
 		this._lsymtable.clear();
-		_localVarID = 0;
+		_localVarID = 1;
 		_labelID = 0;
 		_tempVarID = 32;		
 	}
@@ -86,6 +86,10 @@ public class SymbolTable {
 	void putGlobalVarWithInitVal(String varname, Type type, int initVar){
 		//들어온 정보를 가지고 전역변수 테이블에 전역변수를 저장 (초기화 포함)
 		this._gsymtable.put(varname, new VarInfo(type, this._globalVarID++, initVar));
+		
+//		for(String key : this._gsymtable.keySet()) {
+//			System.out.println("key : " + key + ", value : " + this._gsymtable.get(key).initVal);
+//		}
 	}
 
 	//여러 개의 변수를 정리하여 지역변수 테이블에 넣어줌
@@ -127,7 +131,7 @@ public class SymbolTable {
 	//(내부에서 함수를 호출할 때, 함수 정의 X)
 	public String getFunSpecStr(String fname) {
 		String funStr = "";
-
+		
 		//들어오는 인자값과 일치하는 함수명을 찾아 함수 형태 출력
 		for(String key : this._fsymtable.keySet()) {
 			if(fname.contains(key)) {
@@ -140,6 +144,7 @@ public class SymbolTable {
 
 	// (내부에서 함수를 호출할 때, 함수 정의 X)
 	public String getFunSpecStr(Fun_declContext ctx) {
+		System.out.println("getfunspecStr ctx : " + ctx);
 		String funName = ctx.IDENT().getText();
 		String funStr = "";
 
@@ -191,18 +196,28 @@ public class SymbolTable {
 
 		return res;
 	}
+	
+	boolean isLocal(String name) {
+		VarInfo lname = (VarInfo) _lsymtable.get(name);
+		
+		if(lname != null)
+		return true;
+		
+		else return false;
+	}
 
 	// 변수 id를 찾음
 	String getVarId(String name){
 		String sname = "";
 
 		VarInfo lvar = (VarInfo) _lsymtable.get(name); // 지역 변수 테이블에서 찾음
+		VarInfo gvar = (VarInfo) _gsymtable.get(name); // 전역 변수 테이블에서 찾음
+		
 		if(lvar != null) { // 만약 있다면 반환함
 			sname += this._lsymtable.get(name).id;
+			return sname;
 		}
-
-		VarInfo gvar = (VarInfo) _gsymtable.get(name); // 전역 변수 테이블에서 찾음
-		if(gvar != null) { // 만약 있다면 반환
+		else if(gvar != null) { // 만약 있다면 반환
 			sname += this._gsymtable.get(name).id;
 		}
 
