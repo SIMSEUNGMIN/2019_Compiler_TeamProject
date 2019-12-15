@@ -60,7 +60,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String fieldDecl = "";
 
 		if (isArrayDecl(ctx)) {
-			symbolTable.putGlobalVar(varName, Type.INTARRAY);
+			if(isIntDecl(ctx)) {
+				symbolTable.putGlobalVar(varName, Type.INTARRAY);
+			}else{
+				symbolTable.putGlobalVar(varName, Type.FLOATARRAY);
+			}
 		}
 		else if (isDeclWithInit(ctx)) {
             if(isIntDecl(ctx)){
@@ -85,7 +89,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	public void enterLocal_decl(MiniCParser.Local_declContext ctx) {
 		String expr = "";
 		if (isArrayDecl(ctx)) {
-			symbolTable.putLocalVar(getLocalVarName(ctx), Type.INTARRAY);
+			if(isIntDecl(ctx)) {
+				symbolTable.putLocalVar(getLocalVarName(ctx), Type.INTARRAY);
+			}else{
+				symbolTable.putLocalVar(getLocalVarName(ctx), Type.FLOATARRAY);
+			}
 		}
 		else if (isDeclWithInit(ctx)) { // 선언도 포함
             if(isIntDecl(ctx)){
