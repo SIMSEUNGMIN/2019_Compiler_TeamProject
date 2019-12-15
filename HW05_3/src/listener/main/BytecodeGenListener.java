@@ -67,7 +67,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			if (isIntDecl(ctx)) {
 				symbolTable.putGlobalVarWithInitVal(varName, INT, initVal(ctx));
 			} else if (isFloatDecl(ctx)) {
-				symbolTable.putGlobalVarWithInitVal(varName, FLOAT, initVal(ctx));
+				symbolTable.putGlobalVarWithInitVal(varName, FLOAT, initFVal(ctx));
 			}
 		} else { // simple decl
 			if (isIntDecl(ctx)) {
@@ -92,7 +92,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			if (isIntDecl(ctx)) {
 				symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), INT, initVal(ctx));
 			} else if (isFloatDecl(ctx)) {
-				symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), FLOAT, initVal(ctx));
+				symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), FLOAT, initFVal(ctx));
 			}
 		} else { // simple decl
 			if (isIntDecl(ctx)) {
@@ -289,16 +289,14 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String varDecl = "";
 		if (isDeclWithInit(ctx)) {
 			if(isIntDecl(ctx)) {
-				symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), INT, initVal(ctx));
 				String vId = symbolTable.getVarId(ctx);
 				varDecl += "ldc " + ctx.LITERAL().getText() + "\n"
 						+ "istore " + vId + "\n";
 			} else if (isFloatDecl(ctx)) {
-				String init = String.valueOf(initVal(ctx));
+				String init = Float.toString(initFVal(ctx));
 				if(!isFloat(init)){
-					init = init+".0f";
+					init = init+"f";
 				}
-				symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), FLOAT, Float.parseFloat(init));
 				String vId = symbolTable.getVarId(ctx);
 				varDecl += "ldc " + init + "\n"
 						+ "fstore " + vId + "\n";
@@ -361,14 +359,14 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String lelse = symbolTable.newLabel();
 
 		if(noElse(ctx)) {	// if 만 있을 경우
-			stmt += condExpr + "\n"
+			stmt += condExpr
 					+ "ifeq " + lend + "\n"
 					+ thenStmt
 					+ lend + " :"  + "\n";
 		}
 		else {
 			String elseStmt = newTexts.get(ctx.stmt(1));
-			stmt += condExpr + "\n"
+			stmt += condExpr
 					+ "ifeq " + lelse + "\n"
 					+ thenStmt
 					+ "goto " + lend + "\n"
@@ -420,6 +418,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			newTexts.put(ctx, "");
 			return;
 		}
+		
 		if (ctx.getChildCount() == 1) { // IDENT | LITERAL
 			if (ctx.IDENT() != null) {
 				idName = ctx.IDENT().getText();
