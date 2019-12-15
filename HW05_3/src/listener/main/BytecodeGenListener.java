@@ -392,10 +392,12 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				if(isVar) {
                     idName = ctx.IDENT().getText();
                     if(symbolTable.getVarType(idName) == INT){
-                        expr = "putstatic " + "Test/" + idName +" " + "I" + "\n";
+                        expr = newTexts.get(ctx.expr(0))
+                        		+ "putstatic " + "Test/" + idName +" " + "I" + "\n";
                     }
                     else if(symbolTable.getVarType(idName) == FLOAT){
-                        expr = "putstatic " + "Test/" + idName +" " + "F" + "\n";
+                        expr = newTexts.get(ctx.expr(0))
+                        	+ "putstatic " + "Test/" + idName +" " + "F" + "\n";
                     }
 				}
 				else{
