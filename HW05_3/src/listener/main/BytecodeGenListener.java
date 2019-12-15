@@ -713,10 +713,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			
 			if(argType == null) { //전역변수와 지역변수를 찾음
 				Type type = symbolTable.getVarType(argName);
-				if(type == type.INT) {
+				if((type == type.INT) || (type == type.INTARRAY)) {
 					argType = "I";
 				}
-				else if(type == type.FLOAT) {
+				else if((type == type.FLOAT) || (type == type.FLOATARRAY)) {
 					argType = "F";
 				}
 			}
