@@ -18,7 +18,7 @@ public class SymbolTable {
 
 	//함수 또는 변수 타입
 	enum Type {
-		INT, INTARRAY, VOID, ERROR, FLOAT
+		INT, INTARRAY, VOID, ERROR, FLOAT, FLOATARRAY
 	}
 
 	//변수
@@ -26,12 +26,17 @@ public class SymbolTable {
 		Type type; // 변수 타입
 		int id; // 변수 타입에 해당하는 id
 		int initVal; // 변수 초기화 값
-
+		float initFVal;
 		// 생성자
 		public VarInfo(Type type, int id, int initVal) {
 			this.type = type;
 			this.id = id;
 			this.initVal = initVal;
+		}
+		public VarInfo(Type type, int id, float initVal) {
+			this.type = type;
+			this.id = id;
+			this.initFVal = initVal;
 		}
 		public VarInfo(Type type,  int id) {
 			this.type = type;
@@ -82,8 +87,20 @@ public class SymbolTable {
 		//들어온 정보를 가지고 지역변수 테이블에 지역변수를 저장 (초기화 포함)
 		this._lsymtable.put(varname, new VarInfo(type, this._localVarID++, initVar));
 	}
-
+	void putLocalVarWithInitVal(String varname, Type type, float initVar){
+		//들어온 정보를 가지고 지역변수 테이블에 지역변수를 저장 (초기화 포함)
+		this._lsymtable.put(varname, new VarInfo(type, this._localVarID++, initVar));
+	}
 	void putGlobalVarWithInitVal(String varname, Type type, int initVar){
+		//들어온 정보를 가지고 전역변수 테이블에 전역변수를 저장 (초기화 포함)
+		this._gsymtable.put(varname, new VarInfo(type, this._globalVarID++, initVar));
+
+//		for(String key : this._gsymtable.keySet()) {
+//			System.out.println("key : " + key + ", value : " + this._gsymtable.get(key).initVal);
+//		}
+	}
+
+	void putGlobalVarWithInitVal(String varname, Type type, float initVar){
 		//들어온 정보를 가지고 전역변수 테이블에 전역변수를 저장 (초기화 포함)
 		this._gsymtable.put(varname, new VarInfo(type, this._globalVarID++, initVar));
 
@@ -109,6 +126,8 @@ public class SymbolTable {
 				type = Type.VOID;
 			else if(varTypeString.equals("float"))
 				type = Type.FLOAT;
+			else if(varTypeString.equals("float[]"))
+				type = Type.FLOAT;
 			else
 				type = Type.ERROR;
 
@@ -122,7 +141,7 @@ public class SymbolTable {
 
 	private void initFunTable() {
 		FInfo printlninfo = new FInfo();
-		printlninfo.sigStr = "java/io/PrintStream/println(I)V";
+		printlninfo.sigStr = "java/io/PrintStream/println(";
 
 		FInfo maininfo = new FInfo();
 		maininfo.sigStr = "main([Ljava/lang/String;)V";
@@ -146,7 +165,6 @@ public class SymbolTable {
 
 	// (내부에서 함수를 호출할 때, 함수 정의 X)
 	public String getFunSpecStr(Fun_declContext ctx) {
-		System.out.println("getfunspecStr ctx : " + ctx);
 		String funName = ctx.IDENT().getText();
 		String funStr = "";
 
@@ -203,16 +221,34 @@ public class SymbolTable {
 
 		return res;
 	}
-
+	
+	//로컬변수인지 확인
 	boolean isLocal(String name) {
 		VarInfo lname = (VarInfo) _lsymtable.get(name);
 
 		if(lname != null)
 		return true;
-
 		else return false;
 	}
-
+	
+	//전역변수인지 확인
+	boolean isGlobal(String name) {
+		VarInfo gname = (VarInfo) _gsymtable.get(name);
+		
+		if(gname != null)
+			return true;
+		else return false;
+	}
+	
+	//함수인지 확인, 맞으면 함수의 반환형 찾아줌
+	String isFun(String name) {
+		FInfo fname = (FInfo) _fsymtable.get(name);
+		
+		if(fname != null)
+			return fname.sigStr.charAt(fname.sigStr.length()-1) + "";
+		else return null;
+	}
+	
 	// 변수 id를 찾음
 	String getVarId(String name){
 		String sname = "";

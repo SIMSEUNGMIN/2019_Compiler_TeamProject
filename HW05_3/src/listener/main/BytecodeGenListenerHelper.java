@@ -174,8 +174,18 @@ public class BytecodeGenListenerHelper {
 		return "\n" + ".class public Test" + "\n"
 				+ ".super java/lang/Object" + "\n" ;
 	}
+	
+	static String getStaticProlog() {
+		return ".method static public <clinit>()V" + "\n"
+				+ ".limit stack 32" + "\n";
+	}
+	
+	static String getStaticEnd() {
+		return "return" + "\n"
+				+ ".end method" + "\n";
+	}
 
-	static String getFunMid() {
+	static String getFunInit() {
 		return ".method public <init>()V" + "\n"
 				+ ".limit stack 32" + "\n"
 				+ "aload_0" + "\n"
