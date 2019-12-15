@@ -558,24 +558,28 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String l1 = symbolTable.newLabel();
 		String l2 = symbolTable.newLabel();
 		String lend = symbolTable.newLabel();
+		String varName = ctx.expr().get(0).getText();
 		String type = "i";
 		String expr1 = newTexts.get(ctx.expr(0));
 		//if any of expr1, expr2's type is float
 		//everything is changed as float
-		if(isFloat(expr1)){
+		
+		if(symbolTable.getVarType(varName) == Type.FLOAT) 
 			type = "f";
-		}
+			
 		expr += expr1;
 		switch(ctx.getChild(0).getText()) {
 		case "-":
 			expr += "           "+type+"neg \n"; break;
 		case "--":
-			expr += "ldc 1" + "\n"
-					+ type + "sub" + "\n";
+			expr += "ldc 1" + "\n";
+			if(type == "f") expr += "i2f" + "\n";
+			expr += type + "sub" + "\n";
 			break;
 		case "++":
-			expr += "ldc 1" + "\n"
-					+  type + "add" + "\n";
+			expr += "ldc 1" + "\n";
+			if(type == "f") expr += "i2f" + "\n";
+			expr += type + "add" + "\n";
 			break;
 		case "!":
 			expr += "ifeq " + l2 + "\n"
