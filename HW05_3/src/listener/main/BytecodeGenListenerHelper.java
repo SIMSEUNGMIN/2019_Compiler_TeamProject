@@ -135,8 +135,12 @@ public class BytecodeGenListenerHelper {
 		// return
 		// .end method"
 		return "\n" + ".class public Test" + "\n"
-				+ ".super java/lang/Object" + "\n"
-				+ ".method public <init>()V" + "\n"
+				+ ".super java/lang/Object" + "\n" ;
+	}
+	
+	static String getFunMid() {
+		return ".method public <init>()V" + "\n"
+				+ ".limit stack 32" + "\n"
 				+ "aload_0" + "\n"
 				+ "invokenonvirtual java/lang/Object/<init>()V" + "\n";
 	}
