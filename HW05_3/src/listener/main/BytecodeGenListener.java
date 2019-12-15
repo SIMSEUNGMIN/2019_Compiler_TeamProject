@@ -22,8 +22,7 @@ import generated.MiniCParser.Var_declContext;
 
 import static listener.main.BytecodeGenListenerHelper.*;
 import static listener.main.SymbolTable.*;
-import static listener.main.SymbolTable.Type.FLOAT;
-import static listener.main.SymbolTable.Type.INT;
+import static listener.main.SymbolTable.Type.*;
 
 public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeListener {
     ParseTreeProperty<String> newTexts = new ParseTreeProperty<String>();
@@ -407,7 +406,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			}
 		} else if(ctx.getChildCount() == 2) { // UnaryOperation
 			expr = handleUnaryExpr(ctx, expr);
-
 			idName = ctx.expr(0).getText();
 
 			//변수가 지역인지 전역인지 확인
@@ -464,10 +462,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
                 // Arrays: TODO
                 idName = ctx.IDENT().getText();
                 String expr1 = newTexts.get(ctx.getChild(2));
-                if(symbolTable.getVarType(idName) == INT) {
-                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n";
+                if(symbolTable.getVarType(idName) == INTARRAY) {
+                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"iaload\n";
                 }else{
-                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n";
+                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"faload\n";
                 }
             }
         }
@@ -476,14 +474,12 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
             if (ctx.getChild(4).getText().equals("=")) {
                 String expr1 = newTexts.get(ctx.getChild(2));
                 String expr2 = newTexts.get(ctx.getChild(5));
-                if (!expr1.contains("\n")) {
-                    expr1 = "iconst_" + expr1;
-                }
-                if (!expr2.contains("\n")) {
-                    expr2 = "iconst_" + expr2;
-                }
                 idName = ctx.IDENT().getText();
-				expr += ("aload "+symbolTable.getVarId(idName)+"\n"+expr1+"\n" + expr2+"\n" + "iastore\n");
+                if(symbolTable.getVarType(idName) == INTARRAY) {
+                    expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "iastore\n");
+                }else{
+                    expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "fastore\n");
+                }
 			}
 		}
 		newTexts.put(ctx, expr);
