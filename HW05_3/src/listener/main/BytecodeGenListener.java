@@ -363,6 +363,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
                 }
 				else if(!symbolTable.isLocal(idName)&&(symbolTable.getVarType(idName) == FLOAT)) { //IDENT가 전역 변수일 경우
                     expr += "getstatic " + "Test/" + idName + " " + "F" + "\n";
+
                 }
 				else if(symbolTable.getVarType(idName) == INT) {
 					expr += "iload_" + symbolTable.getVarId(idName) + " \n";

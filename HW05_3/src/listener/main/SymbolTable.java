@@ -18,7 +18,7 @@ public class SymbolTable {
 
 	//함수 또는 변수 타입
 	enum Type {
-		INT, INTARRAY, VOID, ERROR
+		INT, INTARRAY, VOID, ERROR, FLOAT
 	}
 
 	//변수
@@ -47,7 +47,7 @@ public class SymbolTable {
 
 	private Map<String, VarInfo> _lsymtable = new HashMap<>();	// local v.
 	private Map<String, VarInfo> _gsymtable = new HashMap<>();	// global v.
-	private Map<String, FInfo> _fsymtable = new HashMap<>();	// function 
+	private Map<String, FInfo> _fsymtable = new HashMap<>();	// function
 
 
 	private int _globalVarID = 0;
@@ -65,7 +65,7 @@ public class SymbolTable {
 		this._lsymtable.clear();
 		_localVarID = 1;
 		_labelID = 0;
-		_tempVarID = 32;		
+		_tempVarID = 32;
 	}
 
 	void putLocalVar(String varname, Type type){
@@ -86,7 +86,7 @@ public class SymbolTable {
 	void putGlobalVarWithInitVal(String varname, Type type, int initVar){
 		//들어온 정보를 가지고 전역변수 테이블에 전역변수를 저장 (초기화 포함)
 		this._gsymtable.put(varname, new VarInfo(type, this._globalVarID++, initVar));
-		
+
 //		for(String key : this._gsymtable.keySet()) {
 //			System.out.println("key : " + key + ", value : " + this._gsymtable.get(key).initVal);
 //		}
@@ -107,7 +107,9 @@ public class SymbolTable {
 				type = Type.INTARRAY;
 			else if(varTypeString.equals("void"))
 				type = Type.VOID;
-			else 
+			else if(varTypeString.equals("float"))
+				type = Type.FLOAT;
+			else
 				type = Type.ERROR;
 
 			//파라미터 변수 이름(1번)
@@ -131,7 +133,7 @@ public class SymbolTable {
 	//(내부에서 함수를 호출할 때, 함수 정의 X)
 	public String getFunSpecStr(String fname) {
 		String funStr = "";
-		
+
 		//들어오는 인자값과 일치하는 함수명을 찾아 함수 형태 출력
 		for(String key : this._fsymtable.keySet()) {
 			if(fname.contains(key)) {
@@ -171,6 +173,9 @@ public class SymbolTable {
 			if(args[i].contains("int")) {
 				argtype += "I";
 			}
+			else if(args[i].contains("float")){
+				argtype += "F";
+			}
 			//			else if(args[i].contains("void")) {
 			//				argtype += "V";
 			//			}
@@ -184,6 +189,8 @@ public class SymbolTable {
 		}
 		else if(rtype.equals("void"))
 			rtype = "V";
+		else if(rtype.equals("float"))
+			rtype = "F";
 		else; // 그 외
 
 		//함수 형태
@@ -196,13 +203,13 @@ public class SymbolTable {
 
 		return res;
 	}
-	
+
 	boolean isLocal(String name) {
 		VarInfo lname = (VarInfo) _lsymtable.get(name);
-		
+
 		if(lname != null)
 		return true;
-		
+
 		else return false;
 	}
 
@@ -212,7 +219,7 @@ public class SymbolTable {
 
 		VarInfo lvar = (VarInfo) _lsymtable.get(name); // 지역 변수 테이블에서 찾음
 		VarInfo gvar = (VarInfo) _gsymtable.get(name); // 전역 변수 테이블에서 찾음
-		
+
 		if(lvar != null) { // 만약 있다면 반환함
 			sname += this._lsymtable.get(name).id;
 			return sname;
@@ -235,7 +242,7 @@ public class SymbolTable {
 			return gvar.type;
 		}
 
-		return Type.ERROR;	
+		return Type.ERROR;
 	}
 
 	String newLabel() {
