@@ -51,7 +51,7 @@ public class SymbolTable {
 
 
 	private int _globalVarID = 0;
-	private int _localVarID = 1;
+	private int _localVarID = 0;
 	private int _labelID = 0;
 	private int _tempVarID = 0;
 
@@ -63,7 +63,7 @@ public class SymbolTable {
 	//처음에 symbolTable 생성시 초기화
 	void initFunDecl(){		// at each func decl
 		this._lsymtable.clear();
-		_localVarID = 1;
+		_localVarID = 0;
 		_labelID = 0;
 		_tempVarID = 32;
 	}
