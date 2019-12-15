@@ -20,7 +20,9 @@ public class BytecodeGenListenerHelper {
 	static boolean isFunDecl(MiniCParser.ProgramContext ctx, int i) {
 		return ctx.getChild(i).getChild(0) instanceof MiniCParser.Fun_declContext;
 	}
-
+    static boolean isFloat(String expr){
+        return (expr.contains("f")||expr.contains("F"));
+    }
 	// type_spec IDENT '[' ']'
 	static boolean isArrayParamDecl(ParamContext param) {
 		return param.getChildCount() == 4;
@@ -169,7 +171,7 @@ public class BytecodeGenListenerHelper {
 		return "\n" + ".class public Test" + "\n"
 				+ ".super java/lang/Object" + "\n" ;
 	}
-	
+
 	static String getFunMid() {
 		return ".method public <init>()V" + "\n"
 				+ ".limit stack 32" + "\n"

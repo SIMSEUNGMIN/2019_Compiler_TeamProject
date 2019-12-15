@@ -503,7 +503,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String expr1 = newTexts.get(ctx.expr(0));
 		//if any of expr1, expr2's type is float
 		//everything is changed as float
-		if(expr1.contains("f")){
+		if(isFloat(expr1)){
 			type = "f";
 		}
 		expr += expr1;
@@ -540,10 +540,13 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String type = "i";
 		//if any of expr1, expr2's type is float
 		//everything is changed as float
-		if(expr1.contains("f")){
+		if(isFloat(expr1)&&isFloat(expr2)){
+			type = "f";
+		}
+		if(isFloat(expr1)){
 			expr2 = expr2 + "i2f\n";
 			type = "f";
-		}else if(expr2.contains("f")){
+		}else if(isFloat(expr2)){
 			expr1 = expr1 + "i2f\n";
 			type = "f";
 		}
