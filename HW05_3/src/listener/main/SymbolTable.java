@@ -18,7 +18,7 @@ public class SymbolTable {
 
 	//함수 또는 변수 타입
 	enum Type {
-		INT, INTARRAY, VOID, ERROR, FLOAT
+		INT, INTARRAY, VOID, ERROR, FLOAT, FLOATARRAY
 	}
 
 	//변수
@@ -26,12 +26,17 @@ public class SymbolTable {
 		Type type; // 변수 타입
 		int id; // 변수 타입에 해당하는 id
 		int initVal; // 변수 초기화 값
-
+		float initFVal;
 		// 생성자
 		public VarInfo(Type type, int id, int initVal) {
 			this.type = type;
 			this.id = id;
 			this.initVal = initVal;
+		}
+		public VarInfo(Type type, int id, float initVal) {
+			this.type = type;
+			this.id = id;
+			this.initFVal = initVal;
 		}
 		public VarInfo(Type type,  int id) {
 			this.type = type;
@@ -82,8 +87,20 @@ public class SymbolTable {
 		//들어온 정보를 가지고 지역변수 테이블에 지역변수를 저장 (초기화 포함)
 		this._lsymtable.put(varname, new VarInfo(type, this._localVarID++, initVar));
 	}
-
+	void putLocalVarWithInitVal(String varname, Type type, float initVar){
+		//들어온 정보를 가지고 지역변수 테이블에 지역변수를 저장 (초기화 포함)
+		this._lsymtable.put(varname, new VarInfo(type, this._localVarID++, initVar));
+	}
 	void putGlobalVarWithInitVal(String varname, Type type, int initVar){
+		//들어온 정보를 가지고 전역변수 테이블에 전역변수를 저장 (초기화 포함)
+		this._gsymtable.put(varname, new VarInfo(type, this._globalVarID++, initVar));
+
+//		for(String key : this._gsymtable.keySet()) {
+//			System.out.println("key : " + key + ", value : " + this._gsymtable.get(key).initVal);
+//		}
+	}
+
+	void putGlobalVarWithInitVal(String varname, Type type, float initVar){
 		//들어온 정보를 가지고 전역변수 테이블에 전역변수를 저장 (초기화 포함)
 		this._gsymtable.put(varname, new VarInfo(type, this._globalVarID++, initVar));
 
@@ -108,6 +125,8 @@ public class SymbolTable {
 			else if(varTypeString.equals("void"))
 				type = Type.VOID;
 			else if(varTypeString.equals("float"))
+				type = Type.FLOAT;
+			else if(varTypeString.equals("float[]"))
 				type = Type.FLOAT;
 			else
 				type = Type.ERROR;
