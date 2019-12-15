@@ -3,6 +3,7 @@ package listener.main;
 import java.util.Hashtable;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
@@ -32,6 +33,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	// program	: decl+
 	@Override
 	public void enterFun_decl(MiniCParser.Fun_declContext ctx) {
+		
 		symbolTable.initFunDecl();
 
 		String fname = getFunName(ctx);
@@ -53,16 +55,22 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	@Override // 전역
 	public void enterVar_decl(MiniCParser.Var_declContext ctx) {
 		String varName = ctx.IDENT().getText();
+		String fieldDecl = "";
 
 		if (isArrayDecl(ctx)) {
+			fieldDecl = ".field static " + varName + " " + "[I" + "\n";
 			symbolTable.putGlobalVar(varName, Type.INTARRAY);
 		}
 		else if (isDeclWithInit(ctx)) {
+			fieldDecl = ".field static " + varName + " " + "I" + "\n";
 			symbolTable.putGlobalVarWithInitVal(varName, Type.INT, initVal(ctx));
 		}
 		else  { // simple decl
+			fieldDecl = ".field static " + varName + " " + "I" + "\n";
 			symbolTable.putGlobalVar(varName, Type.INT);
 		}
+		
+		newTexts.put(ctx, fieldDecl);
 	}
 
 
@@ -85,6 +93,8 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	@Override
 	public void exitProgram(MiniCParser.ProgramContext ctx) {
 		String classProlog = getFunProlog();
+		String fieldDecl = "";
+		String classMid = getFunMid();
 		String classEnd = getFunEnd();
 
 		String fun_decl = "", var_decl = "";
@@ -92,11 +102,19 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		for(int i = 0; i < ctx.getChildCount(); i++) {
 			if(isFunDecl(ctx, i))
 				fun_decl += newTexts.get(ctx.decl(i));
-			else
+			else {
 				var_decl += newTexts.get(ctx.decl(i));
+				
+				String varName = ctx.decl(i).var_decl().IDENT().getText();
+				
+				if (isArrayDecl(ctx.decl(i).var_decl()))
+					fieldDecl += ".field static " + varName + " " + "[I" + "\n";
+				else
+					fieldDecl += ".field static " + varName + " " + "I" + "\n";
+			}	
 		}
 
-		newTexts.put(ctx, classProlog + var_decl + classEnd + fun_decl);
+		newTexts.put(ctx, classProlog + fieldDecl + classMid + var_decl + classEnd + fun_decl);
 
 		System.out.println(newTexts.get(ctx));
 
@@ -111,8 +129,12 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		{
 			if(ctx.var_decl() != null)		//var_decl
 				decl += newTexts.get(ctx.var_decl());
-			else							//fun_decl
-				decl += newTexts.get(ctx.fun_decl()) + ".end method" + "\n";
+			else {							//fun_decl
+				if(ctx.fun_decl().type_spec().getText().equals("void"))
+					decl += newTexts.get(ctx.fun_decl()) + "return" + "\n" +".end method" + "\n";
+				else	
+					decl += newTexts.get(ctx.fun_decl()) + ".end method" + "\n";
+			}							
 		}
 		newTexts.put(ctx, decl);
 	}
@@ -183,8 +205,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	private String funcHeader(MiniCParser.Fun_declContext ctx, String fname) {
 		return ".method public static " + symbolTable.getFunSpecStr(fname) + "\n"
 				+ ".limit stack " + getStackSize(ctx) + "\n"
-				+ ".limit locals " + getLocalVarSize(ctx) + "\n"
-				+ "aload_0" + "\n";
+				+ ".limit locals " + getLocalVarSize(ctx) + "\n";
 
 	}
 
@@ -197,18 +218,16 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		//초기화 값이 있을 때만 만들어준다
 		if (isDeclWithInit(ctx)) {
-			//varDecl += "putfield " + varName + "\n";
-
 			//이때 변수의 값이 6을 넘으면 bipush를 해야한다
 			if(Integer.parseInt(varValue) >= 6) {
 				varDecl += thisString +
 						"bipush " + varValue + "\n" +
-						"putfield " + "Test/" + varName + " " + "I" + "\n";
+						"putstatic " + "Test/" + varName + " " + "I" + "\n";
 			}
 			else {
 				varDecl += thisString +
 						"iconst_" + varValue + "\n" +
-						"putfield " + "Test/" + varName + " " + "I" + "\n";
+						"putstatic " + "Test/" + varName + " " + "I" + "\n";
 			}
 			// v. initialization => Later! skip now..:
 		}
@@ -313,13 +332,12 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			newTexts.put(ctx, "");
 			return;
 		}
-        System.out.println(ctx.getText());
 		if(ctx.getChildCount() == 1) { // IDENT | LITERAL
 			if(ctx.IDENT() != null) {
 				String idName = ctx.IDENT().getText();
-
+				
 				if(!symbolTable.isLocal(idName)) { //IDENT가 전역 변수일 경우
-					expr += "getfield " + "Test/" + idName + " " + "I" + "\n";
+					expr += "getstatic " + "Test/" + idName + " " + "I" + "\n";
 				}
 				else if(symbolTable.getVarType(idName) == Type.INT) {
 					expr += "iload_" + symbolTable.getVarId(idName) + " \n";
@@ -343,21 +361,19 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 			} else if(ctx.getChild(1).getText().equals("=")) { 	// IDENT '=' expr
 				//IDENT가 전역변수인지 아닌지 확인 필요
-				boolean isVar = !(symbolTable.isLocal(ctx.expr(0).getText()));
+				boolean isVar = !(symbolTable.isLocal(ctx.IDENT().getText()));
 
 				//만약 전역변수라면
 				if(isVar) {
-					expr = "putfield " + "Test/" + ctx.IDENT().getText() + " " +"I" + "\n"
-							+ "aload_0" + "\n";
+					expr = newTexts.get(ctx.expr(0)) +
+							"putstatic " + "Test/" + ctx.IDENT().getText() + " " +"I" + "\n";
 				}
 				else{
 					expr = newTexts.get(ctx.expr(0))
 							+ "istore_" + symbolTable.getVarId(ctx.IDENT().getText()) + " \n";
 				}
-
 			} else { 											// binary operation
 				expr += handleBinExpr(ctx, expr);
-
 			}
 		}
 		// IDENT '(' args ')' |  IDENT '[' expr ']'
@@ -382,7 +398,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		}
 		newTexts.put(ctx, expr);
 	}
-
 
 	private String handleUnaryExpr(MiniCParser.ExprContext ctx, String expr) {
 		String l1 = symbolTable.newLabel();
