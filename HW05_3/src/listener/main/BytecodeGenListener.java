@@ -317,32 +317,32 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				String vId = symbolTable.getVarId(ctx);
 				varDecl += "ldc " + init + "\n"
 						+ "fstore " + vId + "\n";
-			}
-		} else if (isArrayDecl(ctx)) {
-			String vId = symbolTable.getVarId(ctx);
-			String reset = "";
-			if (isIntDecl(ctx)) {//int[]
-				for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
-					reset += ("dup\n"
-							+ "ldc " + i + "\n"
-							+ "iconst_0\n"
-							+ "iastore\n");
-				}
-				varDecl += "ldc " + ctx.getChild(3) + "\n"
-						+ "newarray\tint\n"
-						+ reset + "astore " + vId + "\n";
-			} else {//float[]
-				for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
-					reset += ("dup\n"
-							+ "ldc " + i + "\n"
-							+ "fconst_0\n"
-							+ "fastore\n");
-				}
-				varDecl += "ldc " + ctx.getChild(3) + "\n"
-						+ "newarray\tfloat\n"
-						+ reset + "astore " + vId + "\n";
-			}
-		}
+            }
+        } else if (isArrayDecl(ctx)) {
+            String vId = symbolTable.getVarId(ctx);
+            String reset = "";
+            if (isIntDecl(ctx)) {//int[]
+                for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
+                    reset += ("dup\n"
+                            + "ldc " + i + "\n"
+                            + "iconst_0\n"
+                            + "iastore\n");
+                }
+                varDecl += "ldc " + ctx.getChild(3) + "\n"
+                        + "newarray\tint\n"
+                        + reset + "astore " + vId + "\n";
+            } else {//float[]
+                for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
+                    reset += ("dup\n"
+                            + "ldc " + i + "\n"
+                            + "fconst_0\n"
+                            + "fastore\n");
+                }
+                varDecl += "ldc " + ctx.getChild(3) + "\n"
+                        + "newarray\tfloat\n"
+                        + reset + "astore " + vId + "\n";
+            }
+        }
 		newTexts.put(ctx, varDecl);
 	}
 
