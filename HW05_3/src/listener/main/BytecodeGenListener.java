@@ -219,7 +219,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		// 집어넣을 문장을 만듦
 		String whileString = loop + " : " + "\n" // 루프 시작
-				+ expr + "\n" //루프의 조건문
+				+ expr //루프의 조건문
 				+ "ifeq " + lend + "\n" // 만약 틀리다면 lend로 감
 				+ stmt // 반복문 안의 문장 수행
 				+ "goto " + loop + "\n" // 다시 루프로 돌아감
@@ -523,9 +523,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 						expr += ("getstatic Test/" + idName + " [F" + "\n" + expr1 + "faload\n");
 					}
 				}
-
-
-
 			}
 		}
 		// IDENT '[' expr ']' '=' expr
@@ -628,8 +625,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			expr += type+"sub \n"; break;
 
 		case "==":
-			expr += type+"sub " + "\n"
-					+ "ifeq " + l2+ "\n"
+			expr += type+"sub " + "\n";
+			if(type.equals("f")) 
+				expr+= "f2i" + "\n";
+			expr += "ifeq " + l2+ "\n"
 					+ "ldc 0" + "\n"
 					+ "goto " + lend + "\n"
 					+ l2 + " : " + "\n"
@@ -637,55 +636,65 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					+ lend + " : " + "\n";
 			break;
 		case "!=":
-			expr +=type+"sub " + "\n"
-					+ "ifne " + l2 + "\n"
+			expr +=type+"sub " + "\n";
+			if(type.equals("f")) 
+				expr+= "f2i" + "\n";
+			expr += "ifne " + l2 + "\n"
 					+ "ldc 0" + "\n"
 					+ "goto " + lend + "\n"
 					+ l2 + " : " + "\n"
 					+ "ldc 1" + "\n"
-					+ lend + " : ";
+					+ lend + " : " + "\n";
 			break;
 		case "<=":
 			// x <= y일 경우
-			expr += type+"sub " + "\n" // x - y의 값
-					+ "ifle " + l2 + "\n" // 0보다 같거나 작으면 맞은 경우
+			expr += type+"sub " + "\n"; // x - y의 값
+			if(type.equals("f")) 
+				expr+= "f2i" + "\n";
+			expr += "ifle " + l2 + "\n" // 0보다 같거나 작으면 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
 					+ l2 + " : " + "\n"
 					+ "ldc 1" + "\n"
-					+ lend + " : ";
+					+ lend + " : " + "\n";
 			break;
 		case "<":
 			// x < y인 경우
-			expr += type+"sub " + "\n" // x- y 의 값
-					+ "iflt " + l2 + "\n" // 0 보다 작은 경우, 맞은 경우
+			expr += type+"sub " + "\n"; // x- y 의 값
+			if(type.equals("f")) 
+				expr+= "f2i" + "\n";
+			expr += "iflt " + l2 + "\n" // 0 보다 작은 경우, 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
 					+ l2 + " : " + "\n"
 					+ "ldc 1" + "\n"
-					+ lend + " : ";
+					+ lend + " : " + "\n";
 			break;
 
 		case ">=":
 			// x >= y인 경우
-			expr += type+"sub " + "\n" // x - y 의 값
-					+ "ifge " + l2 + "\n" // 0보다 같거나 큰 경우, 맞은 경우
+			expr += type+"sub " + "\n"; // x - y 의 값
+			if(type.equals("f")) 
+				expr+= "f2i" + "\n";
+			expr += "ifge " + l2 + "\n" // 0보다 같거나 큰 경우, 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
 					+ l2 + ": " + "\n"
 					+ "ldc 1" + "\n"
-					+ lend + ": ";
+					+ lend + ": " + "\n";
 			break;
 
 		case ">":
 			// x > y인 경우
-			expr += type+"sub " + "\n" // x - y 의 값
-					+ "ifgt " + l2 + "\n" // 0보다 큰 경우 , 맞은 경우
+			expr += type+"sub " + "\n"; // x - y 의 값
+			if(type.equals("f")) 
+				expr+= "f2i" + "\n";
+			expr += "ifgt " + l2 + "\n" // 0보다 큰 경우 , 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
 					+ l2 + " : " + "\n"
 					+ "ldc 1" + "\n"
-					+ lend + " : ";
+					+ lend + " : " + "\n";
 			break;
 
 		case "and":
