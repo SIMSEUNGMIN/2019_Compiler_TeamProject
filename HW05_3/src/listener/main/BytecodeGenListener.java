@@ -466,14 +466,8 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
                 idName = ctx.IDENT().getText();
                 String expr1 = newTexts.get(ctx.getChild(2));
                 if(symbolTable.getVarType(idName) == INT) {
-                    if (!expr1.contains("\n")) {
-                        expr1 = "iconst_"+expr1;
-                    }
                     expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n";
                 }else{
-                    if (!expr1.contains("\n")) {
-                        expr1 = "iconst_"+expr1;
-                    }
                     expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n";
                 }
             }
