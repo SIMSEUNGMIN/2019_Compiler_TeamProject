@@ -221,7 +221,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String whileString = loop + " : " + "\n" // 루프 시작
 				+ expr + "\n" //루프의 조건문
 				+ "ifeq " + lend + "\n" // 만약 틀리다면 lend로 감
-				//				+ "ldc 1" + "\n" // 맞을 경우 ldc 1
 				+ stmt // 반복문 안의 문장 수행
 				+ "goto " + loop + "\n" // 다시 루프로 돌아감
 				+ lend +" : " + "\n";
@@ -452,8 +451,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			idName = ctx.expr(0).getText();
 
 			//변수가 지역인지 전역인지 확인
-			if(symbolTable.isLocal(idName)) { //지역
-				expr += "istore " + symbolTable.getVarId(idName) + "\n";
+			if(symbolTable.isLocal(idName)) { //지역, int인지 float인지 확인
+				if(symbolTable.getVarType(idName) == INT)
+					expr += "istore " + symbolTable.getVarId(idName) + "\n";
+				else 
+					expr += "fstore " + symbolTable.getVarId(idName) + "\n";
 			}
 			else { //전역
 				if(symbolTable.getVarType(idName) == INT) { //int일 경우
