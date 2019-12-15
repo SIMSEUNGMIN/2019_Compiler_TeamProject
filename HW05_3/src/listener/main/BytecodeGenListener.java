@@ -197,8 +197,8 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		String lend = symbolTable.newLabel();
 		String loop = symbolTable.newLabel();
-		
-		String expr = newTexts.get(ctx.expr()); 
+
+		String expr = newTexts.get(ctx.expr());
 		String stmt = newTexts.get(ctx.stmt());
 
 		// 집어넣을 문장을 만듦
@@ -400,9 +400,9 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			}
 		} else if(ctx.getChildCount() == 2) { // UnaryOperation
 			expr = handleUnaryExpr(ctx, expr);
-			
+
 			idName = ctx.expr(0).getText();
-			
+
 			//변수가 지역인지 전역인지 확인
 			if(symbolTable.isLocal(idName)) { //지역
 				expr += "istore " + symbolTable.getVarId(idName) + "\n";
@@ -415,7 +415,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					expr += "putstatic " + "Test/" + idName + " " + "F" + "\n";
 				}
 			}
-					
+
 		}
 		else if(ctx.getChildCount() == 3) {
 			if(ctx.getChild(0).getText().equals("(")) { 		// '(' expr ')'
@@ -456,8 +456,18 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
             } else { // expr
                 // Arrays: TODO
                 idName = ctx.IDENT().getText();
-                String expr1 = newTexts.get(ctx.expr(3));
-                expr += "aload " + symbolTable.getVarId(idName) + "\n" + "iconst_" + expr1 + "\n";
+                String expr1 = newTexts.get(ctx.getChild(2));
+                if(symbolTable.getVarType(idName) == INT) {
+                    if (!expr1.contains("\n")) {
+                        expr1 = "iconst_"+expr1;
+                    }
+                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n";
+                }else{
+                    if (!expr1.contains("\n")) {
+                        expr1 = "iconst_"+expr1;
+                    }
+                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n";
+                }
             }
         }
         // IDENT '[' expr ']' '=' expr
@@ -512,7 +522,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	private String handleBinExpr(MiniCParser.ExprContext ctx, String expr) {
 		String l2 = symbolTable.newLabel();
 		String lend = symbolTable.newLabel();
-		
+
 		expr += newTexts.get(ctx.expr(0));
 		expr += newTexts.get(ctx.expr(1));
 
@@ -552,7 +562,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					+ "ifle " + l2 + "\n" // 0보다 같거나 작으면 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
-					+ l2 + " : " + "\n" 
+					+ l2 + " : " + "\n"
 					+ "ldc 1" + "\n"
 					+ lend + " : ";
 			break;
@@ -562,7 +572,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					+ "iflt " + l2 + "\n" // 0 보다 작은 경우, 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
-					+ l2 + " : " + "\n" 
+					+ l2 + " : " + "\n"
 					+ "ldc 1" + "\n"
 					+ lend + " : ";
 			break;
