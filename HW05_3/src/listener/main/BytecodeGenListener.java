@@ -256,7 +256,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			if(isIntDecl(ctx)){
 				if (Integer.parseInt(varValue) >= 6) {
 					varDecl += thisString +
-							"bipush " + varValue + "\n" +
+							"ldc " + varValue + "\n" +
 							"putstatic " + "Test/" + varName + " " + "I" + "\n";
 				}
 				else {
@@ -266,7 +266,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				}
 			}else if(isFloatDecl(ctx)&&Float.parseFloat(varValue)>=6){
 				varDecl += thisString +
-						"bipush " + varValue + "\n" +
+						"ldc " + varValue + "\n" +
 						"putstatic " + "Test/" + varName + " " + "F" + "\n";
 			}
 			else if(isIntDecl(ctx)){
@@ -728,6 +728,12 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				}
 				else if((type == type.FLOAT) || (type == type.FLOATARRAY)) {
 					argType = "F";
+				}
+				else { //literal일 경우
+					if(argName.contains("."))
+						argType = "F";
+					else
+						argType = "I";
 				}
 			}
 			
