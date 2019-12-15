@@ -465,7 +465,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
                 String expr1 = newTexts.get(ctx.getChild(2));
                 if(symbolTable.getVarType(idName) == INTARRAY) {
                     expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"iaload\n";
-                }else{
+                }else{//FLOATARRAY
                     expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"faload\n";
                 }
             }
@@ -478,7 +478,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
                 idName = ctx.IDENT().getText();
                 if(symbolTable.getVarType(idName) == INTARRAY) {
                     expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "iastore\n");
-                }else{
+                }else{//FLOATARRAY
                     expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "fastore\n");
                 }
 			}
@@ -490,18 +490,24 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		String l1 = symbolTable.newLabel();
 		String l2 = symbolTable.newLabel();
 		String lend = symbolTable.newLabel();
-
-		expr += newTexts.get(ctx.expr(0));
+		String type = "i";
+		String expr1 = newTexts.get(ctx.expr(0));
+		//if any of expr1, expr2's type is float
+		//everything is changed as float
+		if(expr1.contains("f")){
+			type = "f";
+		}
+		expr += expr1;
 		switch(ctx.getChild(0).getText()) {
 		case "-":
-			expr += "           ineg \n"; break;
+			expr += "           "+type+"neg \n"; break;
 		case "--":
 			expr += "ldc 1" + "\n"
-					+ "isub" + "\n";
+					+ type + "sub" + "\n";
 			break;
 		case "++":
 			expr += "ldc 1" + "\n"
-					+ "iadd" + "\n";
+					+  type + "add" + "\n";
 			break;
 		case "!":
 			expr += "ifeq " + l2 + "\n"
@@ -520,24 +526,33 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 	private String handleBinExpr(MiniCParser.ExprContext ctx, String expr) {
 		String l2 = symbolTable.newLabel();
 		String lend = symbolTable.newLabel();
-
-		expr += newTexts.get(ctx.expr(0));
-		expr += newTexts.get(ctx.expr(1));
-
+		String expr1 = newTexts.get(ctx.expr(0));
+		String expr2 = newTexts.get(ctx.expr(1));
+		String type = "i";
+		//if any of expr1, expr2's type is float
+		//everything is changed as float
+		if(expr1.contains("f")){
+			expr2 = expr2 + "i2f\n";
+			type = "f";
+		}else if(expr2.contains("f")){
+			expr1 = expr1 + "i2f\n";
+			type = "f";
+		}
+		expr += expr1+expr2;
 		switch (ctx.getChild(1).getText()) {
 		case "*":
-			expr += "imul \n"; break;
+			expr += type+"mul \n"; break;
 		case "/":
-			expr += "idiv \n"; break;
+			expr += type+"div \n"; break;
 		case "%":
-			expr += "irem \n"; break;
-		case "+":		// expr(0) expr(1) iadd
-			expr += "iadd \n"; break;
+			expr += type+"rem \n"; break;
+		case "+":		// expr(0) expr(1) iadd or fadd
+			expr += type+"add \n"; break;
 		case "-":
-			expr += "isub \n"; break;
+			expr += type+"sub \n"; break;
 
 		case "==":
-			expr += "isub " + "\n"
+			expr += type+"sub " + "\n"
 					+ "ifeq " + l2+ "\n"
 					+ "ldc 0" + "\n"
 					+ "goto " + lend + "\n"
@@ -546,7 +561,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 					+ lend + " : " + "\n";
 			break;
 		case "!=":
-			expr += "isub " + "\n"
+			expr +=type+"sub " + "\n"
 					+ "ifne " + l2 + "\n"
 					+ "ldc 0" + "\n"
 					+ "goto " + lend + "\n"
@@ -556,7 +571,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			break;
 		case "<=":
 			// x <= y일 경우
-			expr += "isub " + "\n" // x - y의 값
+			expr += type+"sub " + "\n" // x - y의 값
 					+ "ifle " + l2 + "\n" // 0보다 같거나 작으면 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
@@ -566,7 +581,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			break;
 		case "<":
 			// x < y인 경우
-			expr += "isub " + "\n" // x- y 의 값
+			expr += type+"sub " + "\n" // x- y 의 값
 					+ "iflt " + l2 + "\n" // 0 보다 작은 경우, 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
@@ -577,7 +592,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		case ">=":
 			// x >= y인 경우
-			expr += "isub " + "\n" // x - y 의 값
+			expr += type+"sub " + "\n" // x - y 의 값
 					+ "ifge " + l2 + "\n" // 0보다 같거나 큰 경우, 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
@@ -588,7 +603,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		case ">":
 			// x > y인 경우
-			expr += "isub " + "\n" // x - y 의 값
+			expr += type+"sub " + "\n" // x - y 의 값
 					+ "ifgt " + l2 + "\n" // 0보다 큰 경우 , 맞은 경우
 					+ "ldc 0" + "\n" // 틀린 경우
 					+ "goto " + lend + "\n"
