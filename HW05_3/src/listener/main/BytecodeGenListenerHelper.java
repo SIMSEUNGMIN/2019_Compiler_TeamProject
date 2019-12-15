@@ -23,6 +23,9 @@ public class BytecodeGenListenerHelper {
     static boolean isFloat(String expr){
         return (expr.contains("f")||expr.contains("F"));
     }
+    static boolean isInt(String expr){
+        return (expr.contains("i")||expr.contains("I"));
+    }
 	// type_spec IDENT '[' ']'
 	static boolean isArrayParamDecl(ParamContext param) {
 		return param.getChildCount() == 4;

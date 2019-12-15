@@ -367,11 +367,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			String returnString = newTexts.get(ctx.expr());
 
 			// int변수이거나 int전역변수
-			if(returnString.contains("i") || returnString.contains("I")) {
+			if(isInt(returnString)) {
 				newTexts.put(ctx, newTexts.get(ctx.expr()) + "i" + ctx.RETURN().getText() + "\n");
 			}
 			// float상수이거나 float변수이거나 float전역변수
-			else if(returnString.contains("f") || returnString.contains("F")) {
+			else if(isFloat(returnString)) {
 				newTexts.put(ctx, newTexts.get(ctx.expr()) + "f" + ctx.RETURN().getText() + "\n");
 			}
 			else { // int상수
