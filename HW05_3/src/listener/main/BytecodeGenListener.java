@@ -445,54 +445,54 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 				//만약 전역변수라면
 				if(isVar) {
-					idName = ctx.IDENT().getText();
-					if (symbolTable.getVarType(idName) == INT) {
-						expr = newTexts.get(ctx.expr(0))
-								+ "putstatic " + "Test/" + idName + " " + "I" + "\n";
-					} else if (symbolTable.getVarType(idName) == FLOAT) {
-						expr = newTexts.get(ctx.expr(0))
-								+ "putstatic " + "Test/" + idName + " " + "F" + "\n";
-					}
-				} else {
-					idName = ctx.IDENT().getText();
-					if (symbolTable.getVarType(idName) == INT) {
-						expr = newTexts.get(ctx.expr(0))
-								+ "istore " + symbolTable.getVarId(idName) + " \n";
-					} else if (symbolTable.getVarType(idName) == FLOAT) {
-						expr = newTexts.get(ctx.expr(0))
-								+ "fstore " + symbolTable.getVarId(idName) + " \n";
-					}
-				}
-			} else {                                            // binary operation
-				expr += handleBinExpr(ctx, expr);
-			}
-		}
-		// IDENT '(' args ')' |  IDENT '[' expr ']'
-		else if (ctx.getChildCount() == 4) {
-			if (ctx.args() != null) {        // function calls
-				expr = handleFunCall(ctx, expr);
-			} else { // expr
-				// Arrays: TODO
-				idName = ctx.IDENT().getText();
-				String expr1 = newTexts.get(ctx.getChild(2));
-				if(symbolTable.getVarType(idName) == INTARRAY) {
-					expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"iaload\n";
-				}else{//FLOATARRAY
-					expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"faload\n";
-				}
-			}
-		}
-		// IDENT '[' expr ']' '=' expr
-		else { // Arrays: TODO			*/
-			if (ctx.getChild(4).getText().equals("=")) {
-				String expr1 = newTexts.get(ctx.getChild(2));
-				String expr2 = newTexts.get(ctx.getChild(5));
-				idName = ctx.IDENT().getText();
-				if(symbolTable.getVarType(idName) == INTARRAY) {
-					expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "iastore\n");
-				}else{//FLOATARRAY
-					expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "fastore\n");
-				}
+                    idName = ctx.IDENT().getText();
+                    if (symbolTable.getVarType(idName) == INT) {
+                        expr = newTexts.get(ctx.expr(0))
+                                + "putstatic " + "Test/" + idName + " " + "I" + "\n";
+                    } else if (symbolTable.getVarType(idName) == FLOAT) {
+                        expr = newTexts.get(ctx.expr(0))
+                                + "putstatic " + "Test/" + idName + " " + "F" + "\n";
+                    }
+                } else {
+                    idName = ctx.IDENT().getText();
+                    if (symbolTable.getVarType(idName) == INT) {
+                        expr = newTexts.get(ctx.expr(0))
+                                + "istore " + symbolTable.getVarId(idName) + " \n";
+                    } else if (symbolTable.getVarType(idName) == FLOAT) {
+                        expr = newTexts.get(ctx.expr(0))
+                                + "fstore " + symbolTable.getVarId(idName) + " \n";
+                    }
+                }
+            } else {                                            // binary operation
+                expr += handleBinExpr(ctx, expr);
+            }
+        }
+        // IDENT '(' args ')' |  IDENT '[' expr ']'
+        else if (ctx.getChildCount() == 4) {
+            if (ctx.args() != null) {        // function calls
+                expr = handleFunCall(ctx, expr);
+            } else { // expr
+                // Arrays: TODO
+                idName = ctx.IDENT().getText();
+                String expr1 = newTexts.get(ctx.getChild(2));
+                if(symbolTable.getVarType(idName) == INTARRAY) {
+                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"iaload\n";
+                }else{//FLOATARRAY
+                    expr += "aload " + symbolTable.getVarId(idName) + "\n" + expr1 + "\n"+"faload\n";
+                }
+            }
+        }
+        // IDENT '[' expr ']' '=' expr
+        else { // Arrays: TODO			*/
+            if (ctx.getChild(4).getText().equals("=")) {
+                String expr1 = newTexts.get(ctx.getChild(2));
+                String expr2 = newTexts.get(ctx.getChild(5));
+                idName = ctx.IDENT().getText();
+                if(symbolTable.getVarType(idName) == INTARRAY) {
+                    expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "iastore\n");
+                }else{//FLOATARRAY
+                    expr += ("aload " + symbolTable.getVarId(idName) + "\n" + expr1 + expr2 + "fastore\n");
+                }
 			}
 		}
 		newTexts.put(ctx, expr);
