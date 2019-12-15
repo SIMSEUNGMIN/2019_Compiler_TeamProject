@@ -18,7 +18,7 @@ public class SymbolTable {
 
 	//함수 또는 변수 타입
 	enum Type {
-		INT, INTARRAY, VOID, ERROR, FLOAT
+		INT, INTARRAY, VOID, ERROR, FLOAT, FLOATARRAY
 	}
 
 	//변수
@@ -108,6 +108,8 @@ public class SymbolTable {
 			else if(varTypeString.equals("void"))
 				type = Type.VOID;
 			else if(varTypeString.equals("float"))
+				type = Type.FLOAT;
+			else if(varTypeString.equals("float[]"))
 				type = Type.FLOAT;
 			else
 				type = Type.ERROR;

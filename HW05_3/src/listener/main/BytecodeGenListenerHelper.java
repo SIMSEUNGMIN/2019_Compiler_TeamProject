@@ -28,9 +28,16 @@ public class BytecodeGenListenerHelper {
 
 	// global vars
 	static int initVal(Var_declContext ctx) {
-		return Integer.parseInt(ctx.LITERAL().getText());
+		if(ctx.LITERAL().getText().contains("."))
+			initFVal(ctx);
+		else
+			return Integer.parseInt(ctx.LITERAL().getText());
+		return 0;
 	}
 
+	static float initFVal(Var_declContext ctx)	{
+		return Float.parseFloat(ctx.LITERAL().getText());
+	}
 	// var_decl	: type_spec IDENT '=' LITERAL ';
 	static boolean isDeclWithInit(Var_declContext ctx) {
 		return ctx.getChildCount() == 5 ;
@@ -53,9 +60,15 @@ public class BytecodeGenListenerHelper {
 	// <local vars>
 	// local_decl	: type_spec IDENT '[' LITERAL ']' ';'
 	static int initVal(Local_declContext ctx) {
-		return Integer.parseInt(ctx.LITERAL().getText());
+		if(ctx.LITERAL().getText().contains("."))
+			initFVal(ctx);
+		else
+			return Integer.parseInt(ctx.LITERAL().getText());
+		return 0;
 	}
-
+	static float initFVal(Local_declContext ctx)	{
+		return Float.parseFloat(ctx.LITERAL().getText());
+	}
 	static boolean isArrayDecl(Local_declContext ctx) {
 		return ctx.getChildCount() == 6;
 	}

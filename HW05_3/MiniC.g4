@@ -86,8 +86,8 @@ IDENT  : [a-zA-Z_]
 LITERAL:   DecimalConstant     |   OctalConstant     |   HexadecimalConstant  | FloatConstant   ;
 
 FloatConstant
-    :   '0.0'
-    |   [1-9] [0-9]*'.'[0-9][0-9]*
+    :   '0.0f'
+    |   [1-9] [0-9]*'.'[0-9][0-9]*'f'
     ;
 
 DecimalConstant
