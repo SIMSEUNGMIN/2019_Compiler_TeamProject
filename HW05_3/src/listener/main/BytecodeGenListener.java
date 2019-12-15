@@ -193,7 +193,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		String lend = symbolTable.newLabel();
 		String loop = symbolTable.newLabel();
-
+		
 		String expr = newTexts.get(ctx.expr());
 		String stmt = newTexts.get(ctx.stmt());
 
@@ -311,7 +311,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 
 		String lend = symbolTable.newLabel();
 		String lelse = symbolTable.newLabel();
-
 
 		if(noElse(ctx)) {	// if 만 있을 경우
 			stmt += condExpr + "\n"
