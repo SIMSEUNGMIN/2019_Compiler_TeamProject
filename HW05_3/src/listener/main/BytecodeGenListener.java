@@ -429,10 +429,16 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		// IDENT '[' expr ']' '=' expr
 		else { // Arrays: TODO			*/
 			if(ctx.getChild(4).getText().equals("=")) {
-				String expr1 = ctx.getChild(2).getText();
-				String expr2 = ctx.getChild(5).getText();
+				String expr1 = newTexts.get(ctx.getChild(2));
+				String expr2 = newTexts.get(ctx.getChild(5));
+                if(!expr1.contains("\n")){
+                    expr1 = "iconst_"+expr1;
+                }
+				if(!expr2.contains("\n")){
+				    expr2 = "iconst_"+expr2;
+                }
                 idName = ctx.IDENT().getText();
-				expr += ("aload "+symbolTable.getVarId(idName)+"\n"+"iconst_"+expr1+"\n" + "iconst_"+expr2+"\n" + "iastore\n");
+				expr += ("aload "+symbolTable.getVarId(idName)+"\n"+expr1+"\n" + expr2+"\n" + "iastore\n");
 			}
 		}
 		newTexts.put(ctx, expr);
