@@ -393,7 +393,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
                 //	expr += "           lda " + symbolTable.get(ctx.IDENT().getText()).value + " \n";
             } else if (ctx.LITERAL() != null) {
                 String literalStr = ctx.LITERAL().getText();
-                System.out.println(literalStr);
                 expr += "ldc " + literalStr + " \n";
             }
         } else if (ctx.getChildCount() == 2) { // UnaryOperation
