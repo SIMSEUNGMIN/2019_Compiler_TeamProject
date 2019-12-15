@@ -127,9 +127,16 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				String varName = ctx.decl(i).var_decl().IDENT().getText();
 
 				if (isArrayDecl(ctx.decl(i).var_decl()))
-					fieldDecl += ".field static " + varName + " " + "[I" + "\n";
-				else
-					fieldDecl += ".field static " + varName + " " + "I" + "\n";
+				    if(isIntDecl(ctx.decl(i).var_decl()))
+				        fieldDecl += ".field static " + varName + " " + "[I" + "\n";
+				    else
+                        fieldDecl += ".field static " + varName + " " + "[F" + "\n";
+				else {
+                    if (isIntDecl(ctx.decl(i).var_decl()))
+                        fieldDecl += ".field static " + varName + " " + "I" + "\n";
+                    else
+                        fieldDecl += ".field static " + varName + " " + "F" + "\n";
+                }
 			}
 		}
 
