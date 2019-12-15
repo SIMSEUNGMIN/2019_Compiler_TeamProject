@@ -165,7 +165,6 @@ public class SymbolTable {
 
 	// (내부에서 함수를 호출할 때, 함수 정의 X)
 	public String getFunSpecStr(Fun_declContext ctx) {
-		System.out.println("getfunspecStr ctx : " + ctx);
 		String funName = ctx.IDENT().getText();
 		String funStr = "";
 
@@ -222,16 +221,34 @@ public class SymbolTable {
 
 		return res;
 	}
-
+	
+	//로컬변수인지 확인
 	boolean isLocal(String name) {
 		VarInfo lname = (VarInfo) _lsymtable.get(name);
 
 		if(lname != null)
 		return true;
-
 		else return false;
 	}
-
+	
+	//전역변수인지 확인
+	boolean isGlobal(String name) {
+		VarInfo gname = (VarInfo) _gsymtable.get(name);
+		
+		if(gname != null)
+			return true;
+		else return false;
+	}
+	
+	//함수인지 확인, 맞으면 함수의 반환형 찾아줌
+	String isFun(String name) {
+		FInfo fname = (FInfo) _fsymtable.get(name);
+		
+		if(fname != null)
+			return fname.sigStr.charAt(fname.sigStr.length()-1) + "";
+		else return null;
+	}
+	
 	// 변수 id를 찾음
 	String getVarId(String name){
 		String sname = "";
