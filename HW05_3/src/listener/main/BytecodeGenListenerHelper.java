@@ -28,12 +28,29 @@ public class BytecodeGenListenerHelper {
 
 	// global vars
 	static int initVal(Var_declContext ctx) {
-		return Integer.parseInt(ctx.LITERAL().getText());
+		if(ctx.LITERAL().getText().contains("."))
+			initFVal(ctx);
+		else
+			return Integer.parseInt(ctx.LITERAL().getText());
+		return 0;
 	}
 
+	static float initFVal(Var_declContext ctx)	{
+		return Float.parseFloat(ctx.LITERAL().getText());
+	}
 	// var_decl	: type_spec IDENT '=' LITERAL ';
 	static boolean isDeclWithInit(Var_declContext ctx) {
 		return ctx.getChildCount() == 5 ;
+	}
+	static boolean isIntDecl(Var_declContext ctx)	{
+		if(getTypeText(ctx.type_spec()).equals("int"))
+			return true;
+		return false;
+	}
+	static boolean isFloatDecl(Var_declContext ctx)	{
+		if(getTypeText(ctx.type_spec()).equals("float"))
+			return true;
+		return false;
 	}
 	// var_decl	: type_spec IDENT '[' LITERAL ']' ';'
 	static boolean isArrayDecl(Var_declContext ctx) {
@@ -43,15 +60,30 @@ public class BytecodeGenListenerHelper {
 	// <local vars>
 	// local_decl	: type_spec IDENT '[' LITERAL ']' ';'
 	static int initVal(Local_declContext ctx) {
-		return Integer.parseInt(ctx.LITERAL().getText());
+		if(ctx.LITERAL().getText().contains("."))
+			initFVal(ctx);
+		else
+			return Integer.parseInt(ctx.LITERAL().getText());
+		return 0;
 	}
-
+	static float initFVal(Local_declContext ctx)	{
+		return Float.parseFloat(ctx.LITERAL().getText());
+	}
 	static boolean isArrayDecl(Local_declContext ctx) {
 		return ctx.getChildCount() == 6;
 	}
-
+	static boolean isIntDecl(Local_declContext ctx)	{
+		if(getTypeText(ctx.type_spec()).equals("int"))
+			return true;
+		return false;
+	}
+	static boolean isFloatDecl(Local_declContext ctx)	{
+		if(getTypeText(ctx.type_spec()).equals("float"))
+			return true;
+		return false;
+	}
 	static boolean isDeclWithInit(Local_declContext ctx) {
-		return ctx.getChildCount() == 5 ;
+		return ctx.getChildCount() == 5;
 	}
 
 	//함수의 반환형이 void인지 확인
