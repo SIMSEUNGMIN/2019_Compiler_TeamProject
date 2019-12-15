@@ -138,7 +138,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				}
 			}
 		}
-
+		
 		newTexts.put(ctx, classProlog + fieldDecl + classMid + var_decl + classEnd + fun_decl);
 
 		System.out.println(newTexts.get(ctx));
@@ -249,6 +249,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
                     varDecl += thisString +
                             "bipush " + varValue + "\n" +
                             "putstatic " + "Test/" + varName + " " + "I" + "\n";
+                }
+                else {
+                	varDecl += thisString +
+    						"ldc " + varValue + "\n" +
+    						"putstatic " + "Test/" + varName + " " + "I" + "\n";
                 }
 			}else if(isFloatDecl(ctx)&&Float.parseFloat(varValue)>=6){
                 varDecl += thisString +
