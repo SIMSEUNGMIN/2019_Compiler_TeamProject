@@ -138,7 +138,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				}
 			}
 		}
-		
+
 		newTexts.put(ctx, classProlog + fieldDecl + classMid + var_decl + classEnd + fun_decl);
 
 		System.out.println(newTexts.get(ctx));
@@ -245,56 +245,56 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		if (isDeclWithInit(ctx)) {
 			//이때 변수의 값이 6을 넘으면 bipush를 해야한다
 			if(isIntDecl(ctx)){
-                if (Integer.parseInt(varValue) >= 6) {
-                    varDecl += thisString +
-                            "bipush " + varValue + "\n" +
-                            "putstatic " + "Test/" + varName + " " + "I" + "\n";
-                }
-                else {
-                	varDecl += thisString +
-    						"ldc " + varValue + "\n" +
-    						"putstatic " + "Test/" + varName + " " + "I" + "\n";
-                }
+				if (Integer.parseInt(varValue) >= 6) {
+					varDecl += thisString +
+							"bipush " + varValue + "\n" +
+							"putstatic " + "Test/" + varName + " " + "I" + "\n";
+				}
+				else {
+					varDecl += thisString +
+							"ldc " + varValue + "\n" +
+							"putstatic " + "Test/" + varName + " " + "I" + "\n";
+				}
 			}else if(isFloatDecl(ctx)&&Float.parseFloat(varValue)>=6){
-                varDecl += thisString +
-                        "bipush " + varValue + "\n" +
-                        "putstatic " + "Test/" + varName + " " + "F" + "\n";
-            }
+				varDecl += thisString +
+						"bipush " + varValue + "\n" +
+						"putstatic " + "Test/" + varName + " " + "F" + "\n";
+			}
 			else if(isIntDecl(ctx)){
 				varDecl += thisString +
 						"ldc " + varValue + "\n" +
 						"putstatic " + "Test/" + varName + " " + "I" + "\n";
 			}else{
-                varDecl += thisString +
-                        "ldc " + varValue + "\n" +
-                        "putstatic " + "Test/" + varName + " " + "F" + "\n";
-            }
+				varDecl += thisString +
+						"ldc " + varValue + "\n" +
+						"putstatic " + "Test/" + varName + " " + "F" + "\n";
+			}
 			// v. initialization => Later! skip now..:
 		} else if(isArrayDecl(ctx)) {
-            String vId = symbolTable.getVarId(ctx);
-            String reset = "";
-            if (isIntDecl(ctx)) {//int[]
-                for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
-                    reset += ("dup\n"
-                            + "ldc " + i + "\n"
-                            + "iconst_0\n"
-                            + "iastore\n");
-                }
-                varDecl += "ldc " + ctx.getChild(3) + "\n"
-                        + "newarray\tint\n"
-                        + reset + "astore " + vId + "\n";
-            } else {//float[]
-                for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
-                    reset += ("dup\n"
-                            + "ldc " + i + "\n"
-                            + "fconst_0\n"
-                            + "fastore\n");
-                }
-                varDecl += "ldc " + ctx.getChild(3) + "\n"
-                        + "newarray\tfloat\n"
-                        + reset + "astore " + vId + "\n";
-            }
-        }
+			String vId = symbolTable.getVarId(ctx);
+			String reset = "";
+			if (isIntDecl(ctx)) {//int[]
+				for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
+					reset += ("dup\n"
+							+ "ldc " + i + "\n"
+							+ "iconst_0\n"
+							+ "iastore\n");
+				}
+				varDecl += "ldc " + ctx.getChild(3) + "\n"
+						+ "newarray\tint\n"
+						+ reset + "astore " + vId + "\n";
+			} else {//float[]
+				for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
+					reset += ("dup\n"
+							+ "ldc " + i + "\n"
+							+ "fconst_0\n"
+							+ "fastore\n");
+				}
+				varDecl += "ldc " + ctx.getChild(3) + "\n"
+						+ "newarray\tfloat\n"
+						+ reset + "astore " + vId + "\n";
+			}
+		}
 		newTexts.put(ctx, varDecl);
 	}
 
@@ -406,13 +406,15 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		// return expr ; 인 경우
 		else {
 			String returnString = newTexts.get(ctx.expr());
-			// int변수이거나 int전역변수
-			if(isInt(returnString)) {
-				newTexts.put(ctx, newTexts.get(ctx.expr()) + "i" + ctx.RETURN().getText() + "\n");
-			}
+			System.out.println(returnString);
+
 			// float상수이거나 float변수이거나 float전역변수
-			else if(isFloat(returnString)) {
+			if(isFloat(returnString)) {
 				newTexts.put(ctx, newTexts.get(ctx.expr()) + "f" + ctx.RETURN().getText() + "\n");
+			}
+			// int변수이거나 int전역변수
+			else if(isInt(returnString)) {
+				newTexts.put(ctx, newTexts.get(ctx.expr()) + "i" + ctx.RETURN().getText() + "\n");
 			}
 			// int변수이거나 int전역변수
 			else if(isInt(returnString)) {
@@ -512,6 +514,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		}
 		// IDENT '(' args ')' |  IDENT '[' expr ']'
 		else if (ctx.getChildCount() == 4) {
+
 			if (ctx.args() != null) {        // function calls
 				expr = handleFunCall(ctx, expr);
 			} else { // expr
@@ -529,9 +532,9 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				}
 				else { //전역의 경우
 					if(symbolTable.getVarType(idName) == INTARRAY) {
-						expr += ("getstatic Test/" + idName + " [I" + "\n" + expr1 + "iastore\n");
+						expr += ("getstatic Test/" + idName + " [I" + "\n" + expr1);
 					}else{ // FLOATARRAY
-						expr += ("getstatic Test/" + idName + " [F" + "\n" + expr1 + "fastore\n");
+						expr += ("getstatic Test/" + idName + " [F" + "\n" + expr1);
 					}
 				}
 
