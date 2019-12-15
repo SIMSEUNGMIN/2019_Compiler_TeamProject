@@ -244,16 +244,26 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		//초기화 값이 있을 때만 만들어준다
 		if (isDeclWithInit(ctx)) {
 			//이때 변수의 값이 6을 넘으면 bipush를 해야한다
-			if(Integer.parseInt(varValue) >= 6) {
+			if(isIntDecl(ctx)){
+                if (Integer.parseInt(varValue) >= 6) {
+                    varDecl += thisString +
+                            "bipush " + varValue + "\n" +
+                            "putstatic " + "Test/" + varName + " " + "I" + "\n";
+                }
+			}else if(isFloatDecl(ctx)&&Float.parseFloat(varValue)>=6){
+                varDecl += thisString +
+                        "bipush " + varValue + "\n" +
+                        "putstatic " + "Test/" + varName + " " + "F" + "\n";
+            }
+			else if(isIntDecl(ctx)){
 				varDecl += thisString +
-						"bipush " + varValue + "\n" +
+						"ldc " + varValue + "\n" +
 						"putstatic " + "Test/" + varName + " " + "I" + "\n";
-			}
-			else {
-				varDecl += thisString +
-						"iconst_" + varValue + "\n" +
-						"putstatic " + "Test/" + varName + " " + "I" + "\n";
-			}
+			}else{
+                varDecl += thisString +
+                        "ldc " + varValue + "\n" +
+                        "putstatic " + "Test/" + varName + " " + "F" + "\n";
+            }
 			// v. initialization => Later! skip now..:
 		}
 		newTexts.put(ctx, varDecl);
@@ -282,21 +292,21 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
             if (isIntDecl(ctx)) {//int[]
                 for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
                     reset += ("dup\n"
-                            + "iconst_" + i + "\n"
+                            + "ldc" + i + "\n"
                             + "iconst_0\n"
                             + "iastore\n");
                 }
-                varDecl += "iconst_" + ctx.getChild(3) + "\n"
+                varDecl += "ldc" + ctx.getChild(3) + "\n"
                         + "newarray\tint\n"
                         + reset + "astore " + vId + "\n";
             } else {//float[]
                 for (int i = 0; i < Integer.parseInt(ctx.getChild(3).getText()); i++) {
                     reset += ("dup\n"
-                            + "iconst_" + i + "\n"
+                            + "ldc" + i + "\n"
                             + "fconst_0\n"
                             + "fastore\n");
                 }
-                varDecl += "iconst_" + ctx.getChild(3) + "\n"
+                varDecl += "ldc" + ctx.getChild(3) + "\n"
                         + "newarray\tfloat\n"
                         + reset + "astore " + vId + "\n";
             }
