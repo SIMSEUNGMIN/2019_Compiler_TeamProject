@@ -33,15 +33,15 @@ public class BytecodeGenListenerHelper {
 
 	// global vars
 	static int initVal(Var_declContext ctx) {
-		if(ctx.LITERAL().getText().contains("."))
-			initFVal(ctx);
-		else
+//		if(ctx.getChild(3).getText().contains("."))
+//			initFVal(ctx);
+//		else
 			return Integer.parseInt(ctx.LITERAL().getText());
-		return 0;
+//		return 0;
 	}
 
 	static float initFVal(Var_declContext ctx)	{
-		return Float.parseFloat(ctx.LITERAL().getText());
+		return Float.parseFloat(ctx.getChild(3).getText());
 	}
 	// var_decl	: type_spec IDENT '=' LITERAL ';
 	static boolean isDeclWithInit(Var_declContext ctx) {
