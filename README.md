@@ -8,40 +8,40 @@ float h = 1.0f;
 float hiif[5];
 
 float add(int a, float b){
-	hiif[a] = b;
-	return hiif[a];
+   hiif[a] = b;
+   return hiif[a];
 }
 
 void main(){
-	int i = 5;
-	float j = 1.2f;
-	count = 1;
-	
-	while(count < i){
-		if(count % 2 == 0){
-			_print(add(count, h));
-		}
-		else{
+   int i = 5;
+   float j = 1.2f;
+   count = 1;
+   
+   while(count < i){
+      if(count % 2 == 0){
+         _print(add(count, h));
+      }
+      else{
          _print(add(count, j));
          ++j;
-      	}
-		--h;
-		count = count + 1;
-	}
+         }
+      --h;
+      count = count + 1;
+   }
 }
 
 test code 2 (단순)
 
 void main(){
-	float a = 2.3f;
-	float b = 6.3f;
-	
-	if(a > b){
-		_print(a);
-	}
-	else{
-		_print(b);
-	}
+   float a = 2.3f;
+   float b = 6.3f;
+   
+   if(a > b){
+      _print(a);
+   }
+   else{
+      _print(b);
+   }
 }
 
 test code 3 (형변환)
@@ -69,4 +69,49 @@ void main(){
    
    a = c + 1.0f; 
    _print(hiif[0]); 
+}
+
+test code 4 
+
+int count = 0;
+int f[5];
+
+void initfun(int a){
+   f[a] = count;
+}
+
+void main(){
+	int b = 1;
+	int c = 2;
+	int d;
+	d = 3;
+	
+   while(count < 5){
+   	initfun(count);
+   	count = count + 1;
+   }
+   
+   if(b == 1){
+   		f[b] = b;
+   		_print(f[b]);
+   		
+   		if(c != 2){
+   			--count;
+   		}
+   		else if(c == 2){
+   			_print(3.4f);
+   		}
+   		else{
+   			_print(f[4]);
+   			
+   		}
+   }
+   else{
+   	if(d != 3){
+   		_print(3);
+   	}
+   	else{
+   		_print(count);
+   	}
+   }
 }
