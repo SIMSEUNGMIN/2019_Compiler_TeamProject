@@ -359,10 +359,11 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 			if(ctx.IDENT() != null) {
 				idName = ctx.IDENT().getText();
 				if(!symbolTable.isLocal(idName)&&(symbolTable.getVarType(idName) == INT)) { //IDENT가 전역 변수일 경우
-                    expr += "getfield " + "Test/" + idName + " " + "I" + "\n";
+                    expr += "getstatic " + "Test/" + idName + " " + "I" + "\n";
                 }
 				else if(!symbolTable.isLocal(idName)&&(symbolTable.getVarType(idName) == FLOAT)) { //IDENT가 전역 변수일 경우
-                    expr += "getfield " + "Test/" + idName + " " + "F" + "\n";
+                    expr += "getstatic " + "Test/" + idName + " " + "F" + "\n";
+
                 }
 				else if(symbolTable.getVarType(idName) == INT) {
 					expr += "iload_" + symbolTable.getVarId(idName) + " \n";
@@ -392,10 +393,10 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				if(isVar) {
                     idName = ctx.IDENT().getText();
                     if(symbolTable.getVarType(idName) == INT){
-                        expr = "putfield " + "Test/" + idName +" " + "I" + "\n";
+                        expr = "putstatic " + "Test/" + idName +" " + "I" + "\n";
                     }
                     else if(symbolTable.getVarType(idName) == FLOAT){
-                        expr = "putfield " + "Test/" + idName +" " + "F" + "\n";
+                        expr = "putstatic " + "Test/" + idName +" " + "F" + "\n";
                     }
 				}
 				else{
