@@ -29,3 +29,17 @@ void main(){
 		count = count + 1;
 	}
 }
+
+test code 2
+
+void main(){
+	float a = 2.3f;
+	float b = 6.3f;
+	
+	if(a > b){
+		_print(a);
+	}
+	else{
+		_print(b);
+	}
+}
