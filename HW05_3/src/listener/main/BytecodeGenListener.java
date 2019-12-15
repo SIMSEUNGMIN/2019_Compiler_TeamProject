@@ -280,9 +280,13 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 				varDecl += "ldc " + ctx.LITERAL().getText() + "\n"
 						+ "istore " + vId + "\n";
 			} else if (isFloatDecl(ctx)) {
-				symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), FLOAT, initVal(ctx));
+				String init = String.valueOf(initVal(ctx));
+				if(!isFloat(init)){
+					init = init+".0f";
+				}
+				symbolTable.putLocalVarWithInitVal(getLocalVarName(ctx), FLOAT, Float.parseFloat(init));
 				String vId = symbolTable.getVarId(ctx);
-				varDecl += "ldc " + ctx.LITERAL().getText() + "\n"
+				varDecl += "ldc " + init + "\n"
 						+ "fstore " + vId + "\n";
 
             }
@@ -447,7 +451,6 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		else if(ctx.getChildCount() == 3) {
 			if(ctx.getChild(0).getText().equals("(")) { 		// '(' expr ')'
 				expr += newTexts.get(ctx.expr(0));
-
 			} else if(ctx.getChild(1).getText().equals("=")) { 	// IDENT '=' expr
 				//IDENT가 전역변수인지 아닌지 확인 필요
 				boolean isVar = !(symbolTable.isLocal(ctx.IDENT().getText()));
@@ -555,7 +558,7 @@ public class BytecodeGenListener extends MiniCBaseListener implements ParseTreeL
 		if(isFloat(expr1)&&isFloat(expr2)){
 			type = "f";
 		}
-		if(isFloat(expr1)){
+		else if(isFloat(expr1)){
 			expr2 = expr2 + "i2f\n";
 			type = "f";
 		}else if(isFloat(expr2)){
