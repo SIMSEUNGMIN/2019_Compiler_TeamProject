@@ -1,9 +1,7 @@
 # 2019_Compiler_TeamProject
 2019 컴파일러 개론 팀프로젝트
 
-~~~
 test code 1 (복합)
-~~~
 
 ~~~java
 int count;
@@ -34,9 +32,9 @@ void main(){
 }
 ~~~
 
-~~~
+
 test code 2 (단순)
-~~~
+
 ~~~java
 void main(){
    float a = 2.3f;
