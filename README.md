@@ -1,8 +1,11 @@
 # 2019_Compiler_TeamProject
 2019 컴파일러 개론 팀프로젝트
 
+~~~
 test code 1 (복합)
+~~~
 
+~~~java
 int count;
 float h = 1.0f;
 float hiif[5];
@@ -29,9 +32,12 @@ void main(){
       count = count + 1;
    }
 }
+~~~
 
+~~~
 test code 2 (단순)
-
+~~~
+~~~java
 void main(){
    float a = 2.3f;
    float b = 6.3f;
@@ -43,9 +49,9 @@ void main(){
       _print(b);
    }
 }
-
+~~~
 test code 3 (형변환)
-
+~~~java
 int count = 0;
 float h = 1.0f;
 int hiif[5];
@@ -70,9 +76,9 @@ void main(){
    a = c + 1.0f; 
    _print(hiif[0]); 
 }
-
+~~~
 test code 4 
-
+~~~java
 int count = 0;
 int f[5];
 
@@ -115,3 +121,4 @@ void main(){
    	}
    }
 }
+~~~
